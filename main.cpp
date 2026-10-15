@@ -85,8 +85,7 @@ int main() {
             cout << "Choisis le numero de la colonne (0 a " << nbrcolonnes - 1 << ")" << endl;
             cin >> colonne;
 
-            if (ligne < 0 || ligne >= nbrlignes ||
-                colonne < 0 || colonne >= nbrcolonnes) {
+            if (ligne < 0 || ligne >= nbrlignes || colonne < 0 || colonne >= nbrcolonnes) {
                 cout << "Coordonnees invalides" << endl;
                 i--;
                 continue;

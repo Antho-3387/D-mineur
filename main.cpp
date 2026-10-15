@@ -1,107 +1,107 @@
-
 #include <iostream>
-#include <string>
-#include <vector>
-using namespace std;
+#include <chrono>
+#include <thread>
 
-void Grid(int *tab, int nbrlignes, int nbrcolonnes) {
-    for (int x = 0; x < nbrlignes; x++) {
-        for (int y = 0; y < nbrcolonnes; y++) {
-            int index = x * nbrcolonnes + y;
-            cout << tab[index] << " ";
-        }
-        cout << endl;
-    }
-}
+int main()
+{
+    int NbrRaws = 10;
+    int NbrColumns = 10;
+    int* Grid = new int[NbrRaws * NbrColumns];
 
-void printgrid(int nbrlignes, int nbrcolonnes, int* grid) {
-    for (int i = 0; i < nbrlignes; i++) {
-        for (int j = 0; j < nbrcolonnes; j++) {
-            int tab = i * nbrcolonnes + j;
-            if (grid[tab] == 1)
-                cout << "[#]";
-            else
-                cout << "[_]";
-        }
-        cout << endl;
-    }
-}
-
-int vstatus(int cellx, int celly, int* grid, int nbrcolonnes, int nbrlignes) {
-    int nbrlivev = 0;
-
-    for (int voisinx = cellx - 1; voisinx <= cellx + 1; voisinx++) {
-        for (int voisiny = celly - 1; voisiny <= celly + 1; voisiny++) {
-
-            if (voisinx < 0 || voisiny < 0 ||
-                voisinx >= nbrlignes || voisiny >= nbrcolonnes)
-                continue;
-
-            if (voisinx == cellx && voisiny == celly)
-                continue;
-
-            if (grid[voisinx * nbrcolonnes + voisiny] == 1) {
-                nbrlivev++;
-            }
+    for (int X = 0; X < NbrRaws; X++) {
+        for (int Y = 0; Y < NbrColumns; Y++) {
+            int INDEX = X * NbrColumns + Y;
+            Grid[INDEX] = 0;
         }
     }
+    Grid[54] = 1;
+    Grid[55] = 1;
+    Grid[56] = 1;
+    auto TimePoint = std::chrono::steady_clock::now();
+    bool IsSimulating = true;
+    int NbrIteration = 0;
 
-    return nbrlivev;
-}
+    while (IsSimulating) {
+        auto SecondTimePoint = std::chrono::steady_clock::now();
+        auto Duration = SecondTimePoint - TimePoint;
+        auto Time = std::chrono::duration_cast<std::chrono::seconds>(Duration);
+        if (Time.count() >= 2) {
+            TimePoint = std::chrono::steady_clock::now();
+            int* TempGrid = new int[NbrRaws * NbrColumns];
+            for (int X = 0; X < NbrRaws; X++) {
+                for (int Y = 0; Y < NbrColumns; Y++) {
+                    int NeighborsAliveCount = 0;
+                    for (int NeighborX = X - 1; NeighborX <= X + 1; NeighborX++) {
+                        for (int NeighborY = Y - 1; NeighborY <= Y + 1; NeighborY++) {
 
-int main() {
-    int nbrlignes;
-    int nbrcolonnes;
+                            bool IsOutside =
+                                NeighborX < 0 ||
+                                NeighborX >= NbrRaws ||
+                                NeighborY < 0 ||
+                                NeighborY >= NbrColumns;
 
-    cout << "Combien de lignes ?" << endl;
-    cin >> nbrlignes;
+                            bool IsSelf = NeighborX == X && NeighborY == Y;
 
-    cout << "Combien de colonnes ?" << endl;
-    cin >> nbrcolonnes;
+                            if (!IsOutside && !IsSelf) {
+                                int NeighborIndex = NeighborX * NbrColumns + NeighborY;
 
-    if (nbrlignes <= 0 || nbrcolonnes <= 0) {
-        cout << "Dimensions invalides" << endl;
-        return 1;
-    }
+                                if (Grid[NeighborIndex] == 1) {
+                                    NeighborsAliveCount++;
+                                }
+                            }
+                        }
+                    }
 
-    int* tab = new int[nbrlignes * nbrcolonnes]();
-    int* newtab = new int[nbrlignes * nbrcolonnes]();
+                    int CellIndex = X * NbrColumns + Y;
 
-    int cellulesvivantes;
-
-    cout << "Combien il y a de cellules vivantes ?" << endl;
-    cin >> cellulesvivantes;
-
-    if (cellulesvivantes >= 0 &&
-        cellulesvivantes <= nbrlignes * nbrcolonnes) {
-//ici
-        for (int i = 0; i < cellulesvivantes; i++) {
-            int ligne;
-            int colonne;
-
-            cout << "Choisis le numero de la ligne (0 a " << nbrlignes - 1 << ")" << endl;
-            cin >> ligne;
-
-            cout << "Choisis le numero de la colonne (0 a " << nbrcolonnes - 1 << ")" << endl;
-            cin >> colonne;
-
-            if (ligne < 0 || ligne >= nbrlignes || colonne < 0 || colonne >= nbrcolonnes) {
-                cout << "Coordonnees invalides" << endl;
-                i--;
-                continue;
+                    if (Grid[CellIndex] == 1) {
+                        if (NeighborsAliveCount < 2 || NeighborsAliveCount > 3) {
+                            TempGrid[CellIndex] = 0;
+                        }
+                        else {
+                            TempGrid[CellIndex] = 1;
+                        }
+                    }
+                    else {
+                        if (NeighborsAliveCount == 3) {
+                            TempGrid[CellIndex] = 1;
+                        }
+                        else {
+                            TempGrid[CellIndex] = 0;
+                        }
+                    }
                 }
+            }
+            for (int X = 0; X < NbrRaws; X++) {
+                for (int Y = 0; Y < NbrColumns; Y++) {
+                    int CellIndex = X * NbrColumns + Y;
+                    Grid[CellIndex] = TempGrid[CellIndex];
+                }
+            }
 
-            int index = ligne * nbrcolonnes + colonne;
-            tab[index] = 1;
+            delete[] TempGrid;
+
+            std::cout << "\033[2J\033[H";
+
+            for (int X = 0; X < NbrRaws; X++) {
+                for (int Y = 0; Y < NbrColumns; Y++) {
+                    int CellIndex = X * NbrColumns + Y;
+
+                    if (Grid[CellIndex] == 1) {
+                        std::cout << "[]";
+                    }
+                    else {
+                        std::cout << "--";
+                    }
+                }
+                std::cout << "\n";
+            }
+            std::cout << std::endl;
+            NbrIteration++;
         }
-    } else {
-        cout << "Nombre de cellules invalide" << endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
-    printgrid(nbrlignes, nbrcolonnes, tab);
-
-    delete[] tab;
-    delete[] newtab;
+    delete[] Grid;
 
     return 0;
 }

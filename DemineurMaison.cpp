@@ -16,15 +16,15 @@ using namespace std;
 int ObtenirNbrBombe(int x, int y, string** Grille, int NbrLignes, int NbrColonnes) {
     int count = 0;
 
-    for (int dx = -1; dx <= 1; dx++) {// à expliqer
-        for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {// décalage de ligne
+        for (int dy = -1; dy <= 1; dy++) {// décalage de colone
             if (dx == 0 && dy == 0)
                 continue;
 
             int nx = x + dx;
             int ny = y + dy;
 
-            if (nx >= 0 && nx < NbrLignes && ny >= 0 && ny < NbrColonnes) {
+            if (nx >= 0 && nx < NbrLignes && ny >= 0 && ny < NbrColonnes) {// Vérifier que la case voisine est dans la grille
                 if (Grille[nx][ny] == "💣")
                     count++;
             }

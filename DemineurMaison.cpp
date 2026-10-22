@@ -30,7 +30,7 @@ int ObtenirNbrBombe(int x, int y, string** Grille, int NbrLignes, int NbrColonne
             }
         }
     }
-
+    // Retourner le nombre total de bombes voisines
     return count;
 }
 
